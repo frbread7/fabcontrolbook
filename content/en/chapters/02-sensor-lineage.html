@@ -1,0 +1,40 @@
+<article>
+  <h1>Sensor Signals, Traceability, and Data Lineage</h1>
+  <section data-section="objectives">
+    <h2>Learning objectives</h2>
+    <p>Define the identity and provenance needed to interpret manufacturing signals; distinguish equipment traceability, material traceability, and metrological traceability; and design a lineage path from a raw sensor observation to an engineering decision.</p>
+  </section>
+  <section data-section="concepts">
+    <h2>Concepts and lineage model</h2>
+    <p>A sensor value is not self-describing. A usable observation is at minimum a value, unit, event time, acquisition time, source identity, quality state, and context. For a chamber signal, context commonly includes tool and chamber IDs, run or wafer ID, operation, product, recipe name and immutable revision, sensor tag and engineering range, acquisition system, and maintenance/calibration state. Exact fields differ by site; the invariant is that the identifiers resolve unambiguously to controlled records.</p>
+    <p>Keep event time (when the process occurred) separate from ingest time (when a platform received the record). Clock offsets, buffering, retransmission, and batch uploads can reorder observations. Store timezone and clock-synchronization status, and do not sort solely by file arrival. Preserve original samples alongside derived features, with versioned transformation code, parameters, units, aggregation windows, and quality masks. This permits an engineer to reproduce a feature such as a 30-second pressure mean and discover whether a later algorithm changed it.</p>
+    <p>Traceability has related but distinct meanings. Material genealogy links wafer and lot to operations and equipment. Equipment lineage identifies the sensor, channel, calibration state, and replacement history. Metrological traceability describes a measurement result through a documented calibration chain to a reference, with uncertainty; merely recording an instrument serial number is not sufficient. Data lineage connects source observations to transformations, model versions, alarms, and human disposition. A trustworthy system keeps these joins auditable without treating correlation as causation.</p>
+    <p>Represent missing, invalid, saturated, substituted, and delayed readings explicitly. A numeric sentinel such as −999 can accidentally enter an average as a real value. Null alone may also be ambiguous: it could mean not sampled, sensor unavailable, parse error, or suppressed by a quality rule. Use a value plus a reason-coded state. Validate expected sampling cadence and engineering range, but do not clip unexpected values without recording the original and the rule. Sensor range checks identify implausibility, not whether the sensor is calibrated or the process is healthy.</p>
+    <p>Join keys require semantics. A wafer measurement after processing may be linked to a process run through wafer ID and route step, but rework or split lots can create one-to-many relationships. Avoid joining by nearest timestamp unless a documented tolerance and unique matching rule exist. Retain the match method and unmatched records. For any analysis population, define the unit of analysis—sample, time window, run, wafer, or lot—and ensure repeated measurements are not mistaken for independent wafers.</p>
+  </section>
+  <section data-section="worked-example">
+    <h2>Worked example: an apparent chamber excursion</h2>
+    <p>A synthetic pressure trace shows a 12% increase during one run. The chart's event-time axis places it after a valve command, while the data platform received the trace 18 minutes later. The run ID maps to chamber C2, but the recipe revision field is blank. Before calling it a process excursion, preserve the raw trace; confirm clock offsets and sensor tag mapping; retrieve the recipe revision from the execution log; inspect saturation and calibration flags; and verify that the data belongs to the correct run rather than a delayed replay. If lineage cannot resolve the identity, label the observation unclassified and do not feed it into automatic control. A missing revision is a data-quality issue even if the pressure value is numerically plausible.</p>
+  </section>
+  <section data-section="limitations">
+    <h2>Limitations and assumptions</h2>
+    <p>Detailed lineage does not guarantee accurate sensors, correct clocks, or valid models. Calibration uncertainty, sensor placement, bandwidth, aliasing, drift, and maintenance changes remain relevant. Sampling at 1 Hz cannot reliably characterize a 20 Hz transient; filtering may suppress a fault signature. Aggregation can hide spikes and alignment error can create false cause ordering. Data retention and access controls must balance reproducibility with security and operational policy. Never silently impute or discard data for a decision-critical monitor; document the choice and test whether conclusions change under reasonable alternatives.</p>
+  </section>
+  <section data-section="review">
+    <h2>Review questions</h2>
+    <ol>
+      <li>Why should event time and ingest time both be retained?</li>
+      <li>What evidence is needed to claim metrological traceability?</li>
+      <li>How can split lots or rework invalidate a nearest-timestamp join?</li>
+      <li>How would you represent saturation without losing the observed value?</li>
+    </ol>
+  </section>
+  <section data-section="references">
+    <h2>References</h2>
+    <ul>
+      <li>NIST/SEMATECH, <a href="https://www.nist.gov/publications/nistsematech-engineering-statistics-handbook-chapter-2-measurement-process">Engineering Statistics Handbook, Measurement Process Characterization</a>.</li>
+      <li>NIST, <a href="https://www.nist.gov/metrology/metrological-traceability">Metrological Traceability</a>.</li>
+      <li>NIST/SEMATECH, <a href="https://www.itl.nist.gov/div898/handbook/pmc/section2/pmc2.htm">Engineering Statistics Handbook, Measurement Process Monitoring</a>.</li>
+    </ul>
+  </section>
+</article>

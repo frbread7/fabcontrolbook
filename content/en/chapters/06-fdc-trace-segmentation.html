@@ -1,0 +1,46 @@
+<article lang="en">
+  <h1>FDC Trace Segmentation and Feature Engineering</h1>
+  <section data-section="objectives">
+    <h2>Learning objectives</h2>
+    <p>After this chapter, you should be able to define a process trace with its equipment context, distinguish recipe phases from arbitrary time windows, construct interpretable features, and explain when a feature change supports a fault hypothesis rather than merely flagging a difference. The goal of fault detection and classification (FDC) is to turn synchronized sensor observations into timely evidence for an engineering decision. It is not to produce an unexplained alarm score.</p>
+    <p>A trace is a sequence of timestamped observations associated with a wafer or lot, tool, chamber, recipe, recipe revision, operation, and run identifier. These keys are part of the measurement. A pressure curve without chamber and recipe context cannot be compared safely with another run. Preserve the raw trace and its lineage; derived segments and features should point back to source samples and transformations.</p>
+  </section>
+  <section data-section="concepts">
+    <h2>Concepts and model</h2>
+    <p>Trace alignment begins with event markers: recipe start, step transitions, endpoint, and end-of-run. Prefer equipment event records over inferring phase boundaries from signal shape. If timestamps use different clocks, estimate and record the offset and uncertainty. Missing markers, dropped samples, sensor saturation, and recipe changes must be explicit quality states, not silently repaired into ordinary values.</p>
+    <p>For phase <em>p</em>, signal <em>x</em>, samples <em>x<sub>i</sub></em>, and valid sample set <em>I<sub>p</sub></em>, useful summaries include mean <em>x̄<sub>p</sub> = Σx<sub>i</sub>/n<sub>p</sub></em>, standard deviation, median, quantiles, slope from a stated regression window, and area <em>A<sub>p</sub> ≈ Σx<sub>i</sub>Δt<sub>i</sub></em>. Units follow the signal: pressure-time has units such as Pa·s, not pressure. Irregular sampling requires actual Δt weights. A peak is meaningful only after defining filtering, phase, and treatment of spikes.</p>
+    <p>Segmentation can be fixed by recipe events, change-point based, or hybrid. Event segmentation is interpretable and stable when recipes are controlled. Data-driven boundaries may help when events are unreliable, but can shift with noise and obscure the physical meaning of a feature. A feature vector <em>z = g(x, context, phase)</em> is therefore a versioned transformation, not an intrinsic property of a run. Store units, window definitions, filter parameters, missing-data policy, software version, and source revision with it.</p>
+    <p>Feature scaling and classification must respect groups. A chamber baseline, recipe family, maintenance state, and sensor calibration can explain a shift. Training and evaluating on randomly split samples from the same run leaks run-specific information; split by time, lot, or tool as appropriate to the intended deployment. Multivariate distance or a classifier can rank unusual runs, but cannot identify a physical cause without corroborating evidence.</p>
+  </section>
+  <section data-section="worked-example">
+    <h2>Worked example</h2>
+    <p>Consider a synthetic plasma clean with 1 Hz pressure and RF-forward-power records, sampled over a 60 s stabilization phase followed by a 120 s process phase. Recipe events label the phases. Suppose 3 pressure samples are missing from the process phase. Do not interpolate across a long dropout by default: mark the phase incomplete and calculate coverage as 117/120 = 97.5%. If the approved feature policy allows summaries above 95% coverage, calculate a time-weighted median pressure and robust spread from valid observations, while retaining a missingness flag.</p>
+    <p>Suppose process-phase median pressure is 1.8 Pa against a recipe- and chamber-specific historical center of 1.6 Pa. This is a deviation to investigate, not proof of a leak. Check gauge health, throttle-valve position, gas flow, recipe revision, chamber cleans, and sensor timestamps. Compare the pressure response with RF power and endpoint signals. A pressure difference with stable valve demand but changed gas flow suggests a different hypothesis than a shift accompanied by saturated gauge values.</p>
+    <p>For detection, a robust standardized feature might use <em>r = (x − median<sub>baseline</sub>)/(1.4826·MAD<sub>baseline</sub>)</em>, when MAD is nonzero and baseline observations are comparable. The factor makes MAD estimate Gaussian standard deviation under an approximate normal model; it does not make a skewed or multimodal process normal. Define baseline inclusion, recalibration, and alert thresholds prospectively. A threshold is an alarm policy choice, not a product specification limit.</p>
+  </section>
+  <section data-section="limitations">
+    <h2>Limitations and engineering cautions</h2>
+    <p>Recipe events can be wrong; sensors can be asynchronous, nonlinear, drifting, or aliased. A summary can discard transient behavior that matters, while many highly correlated features inflate apparent evidence. Feature-based FDC is vulnerable to recipe mix, chamber swaps, maintenance interventions, and changes in sensor firmware. Establish comparability before comparing distributions.</p>
+    <p>Detection limits and control limits describe behavior relative to a statistical reference model. Specification limits describe acceptable product or process requirements. They are not interchangeable. An FDC alarm should trigger a defined containment and evidence-gathering response, with an authorized human disposition path. It should not autonomously change recipes or release product unless a separately validated and governed control design authorizes that action.</p>
+    <p>This chapter's example is synthetic and illustrative. No feature threshold here has been validated on production equipment. Validate segmentation, feature stability, false-alarm burden, missed-fault behavior, and maintenance sensitivity using governed data before operational use.</p>
+  </section>
+  <section data-section="review">
+    <h2>Review questions</h2>
+    <ol>
+      <li>Which identifiers and event records are necessary to make two traces comparable?</li>
+      <li>Why can an interpolated trace hide a sensor dropout, and what lineage should accompany a derived feature?</li>
+      <li>How would irregular sampling change an area-under-the-curve calculation?</li>
+      <li>Why is a high anomaly score insufficient to establish a physical failure mechanism?</li>
+      <li>Explain the difference between an alarm threshold, a control limit, and a product specification.</li>
+    </ol>
+  </section>
+  <section data-section="references">
+    <h2>References</h2>
+    <ul>
+      <li>U.S. NIST/SEMATECH, <a href="https://www.itl.nist.gov/div898/handbook/">e-Handbook of Statistical Methods</a>, process monitoring and exploratory data analysis chapters.</li>
+      <li>U.S. National Institute of Standards and Technology, <a href="https://www.nist.gov/pml/time-and-frequency-division/time-services">Time Services</a>, background on time standards and traceability.</li>
+      <li>NIST/SEMATECH, <a href="https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc324.htm">EWMA control charts</a>, background on statistical monitoring and time-weighted signals.</li>
+    </ul>
+    <p>Original chapter. No upstream prose, figures, or code are reused. Synthetic values are instructional only.</p>
+  </section>
+</article>

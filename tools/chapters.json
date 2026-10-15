@@ -1,0 +1,24 @@
+{
+  "groups": [
+    {"en":"Architecture and data foundations","ko":"아키텍처와 데이터 기반"},
+    {"en":"Statistical and equipment monitoring","ko":"통계·장비 모니터링"},
+    {"en":"Feedback and operational control","ko":"피드백과 운영 제어"},
+    {"en":"Integrated engineering and governance","ko":"통합 엔지니어링과 거버넌스"}
+  ],
+  "chapters": [
+    {"id":"c01-control-architecture","number":1,"group":0,"file":"01-control-architecture.html","topics":["manufacturing-control","SPC","FDC","APC","R2R"],"title":{"en":"Semiconductor manufacturing control architecture","ko":"반도체 제조 제어 아키텍처"}},
+    {"id":"c02-sensor-lineage","number":2,"group":0,"file":"02-sensor-lineage.html","topics":["sensor-data","traceability","data-lineage","FDC"],"title":{"en":"Sensor signals, traceability, and data lineage","ko":"센서 신호·추적성·데이터 계보"}},
+    {"id":"c03-measurement-data-integrity","number":3,"group":0,"file":"03-measurement-data-integrity.html","topics":["measurement-noise","sampling","missing-data","data-quality"],"title":{"en":"Measurement noise, sampling, and data integrity","ko":"측정 잡음·샘플링·데이터 무결성"}},
+    {"id":"c04-spc-rational-subgroups","number":4,"group":1,"file":"04-spc-rational-subgroups.html","topics":["SPC","control-charts","rational-subgrouping"],"title":{"en":"SPC control charts and rational subgrouping","ko":"SPC 관리도와 합리적 부분군"}},
+    {"id":"c05-shewhart-ewma-cusum","number":5,"group":1,"file":"05-shewhart-ewma-cusum.html","topics":["SPC","Shewhart","EWMA","CUSUM","detection-theory"],"title":{"en":"Shewhart, EWMA, and CUSUM detection theory","ko":"Shewhart·EWMA·CUSUM 검출 이론"}},
+    {"id":"c06-fdc-trace-segmentation","number":6,"group":1,"file":"06-fdc-trace-segmentation.html","topics":["FDC","trace-segmentation","feature-engineering"],"title":{"en":"FDC trace segmentation and feature engineering","ko":"FDC 트레이스 구간화와 특징 엔지니어링"}},
+    {"id":"c07-fdc-multivariate-false-alarms","number":7,"group":1,"file":"07-fdc-multivariate-false-alarms.html","topics":["multivariate-monitoring","fault-detection","false-alarms","FDC"],"title":{"en":"Multivariate monitoring, fault detection, and false alarms","ko":"다변량 모니터링·고장 감지·오경보"}},
+    {"id":"c08-chamber-matching-tool-health","number":8,"group":1,"file":"08-chamber-matching-tool-health.html","topics":["chamber-matching","equipment-drift","tool-health","FDC"],"title":{"en":"Chamber matching, equipment drift, and tool health","ko":"챔버 매칭·장비 드리프트·툴 상태"}},
+    {"id":"c09-run-to-run-apc","number":9,"group":2,"file":"09-run-to-run-apc.html","topics":["APC","R2R","EWMA","feedback-control"],"title":{"en":"Run-to-run APC and EWMA controller mathematics","ko":"런투런 APC와 EWMA 제어기 수학"}},
+    {"id":"c10-feedforward-feedback-delays","number":10,"group":2,"file":"10-feedforward-feedback-delays.html","topics":["feedforward","feedback-control","process-delay","disturbances"],"title":{"en":"Feedforward, feedback, delays, and disturbances","ko":"피드포워드·피드백·지연·외란"}},
+    {"id":"c11-constraints-excursions-safe-response","number":11,"group":2,"file":"11-constraints-excursions-safe-response.html","topics":["control-constraints","excursion-response","safety"],"title":{"en":"Control constraints, excursions, and safe response","ko":"제어 제약·이상 이탈·안전한 대응"}},
+    {"id":"c12-alarm-management-disposition","number":12,"group":2,"file":"12-alarm-management-disposition.html","topics":["alarm-management","operator-response","escalation"],"title":{"en":"Alarm management and engineering disposition","ko":"알람 관리와 엔지니어링 판정"}},
+    {"id":"c13-synthetic-fab-case-studies","number":13,"group":3,"file":"13-synthetic-fab-case-studies.html","topics":["root-cause-reasoning","synthetic-case-study","SPC","FDC","APC"],"title":{"en":"Synthetic fab case studies and root-cause reasoning","ko":"합성 팹 사례와 근본 원인 추론"}},
+    {"id":"c14-verification-change-governance","number":14,"group":3,"file":"14-verification-change-governance.html","topics":["control-verification","validation","change-management","governance"],"title":{"en":"Control-system verification, change management, and governance","ko":"제어 시스템 검증·변경 관리·거버넌스"}}
+  ]
+}

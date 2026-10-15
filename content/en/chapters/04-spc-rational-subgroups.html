@@ -1,0 +1,40 @@
+<article>
+  <h1>SPC Control Charts and Rational Subgrouping</h1>
+  <section data-section="objectives">
+    <h2>Learning objectives</h2>
+    <p>Choose a meaningful statistical unit, explain rational subgrouping, distinguish common-cause behavior from evidence of special causes, and state when standard Shewhart limits are not justified.</p>
+  </section>
+  <section data-section="concepts">
+    <h2>Concepts and chart construction</h2>
+    <p>A control chart is a time-ordered decision rule for a defined statistic. Its center line represents a reference process; control limits quantify expected variation under a model. They are not engineering tolerances or customer specifications. The chart is useful only when the data's sequence, sampling unit, and reference period correspond to the process question. A limit crossing signals unusual evidence under the baseline model; it does not automatically identify a defect, root cause, or disposition.</p>
+    <p>Rational subgrouping places observations produced under conditions expected to be similar within a subgroup, so within-subgroup spread estimates short-term variation while subgroup-to-subgroup movement can reveal changes. In a fab, that design is not automatic. Multiple dies on one wafer share process history; wafers in a lot may share chamber conditions; measurements across chambers may confound tool differences with time. Pooling across products, recipes, or chambers can inflate spread and hide shifts; splitting every factor can reduce signal power and create many opportunities for false alarms. State the estimand and physical rationale before charting.</p>
+    <p>For independent approximately normal individual observations with stable mean μ and standard deviation σ, an individuals chart commonly uses center μ and limits μ ± 3σ. For subgroup means of size n under independent within-subgroup observations, the standard error is σ/√n, giving limits μ ± 3σ/√n. In practice, σ is estimated; estimates and finite sample choices alter the actual false-alarm behavior. For subgroup ranges or standard deviations, constants depend on n and the assumed distribution. Use a recognized derivation or software implementation and document which estimator and phase-I baseline were used.</p>
+    <p>Phase I evaluates historical data for a defensible stable reference; phase II monitors future observations against frozen limits. Removing points solely because they breach limits biases the baseline and can normalize real faults. Exclusions require assignable-cause evidence and documented rationale. Recalculate limits after a process or measurement-system change only through controlled review; do not widen limits to reduce alarms. Use run rules sparingly and predefine them because multiple rules increase false alarms.</p>
+    <p>Autocorrelation violates the independence assumptions behind many textbook limits. A slowly drifting but otherwise predictable series may trigger repeated signals even without a new fault; alternatively, smoothing can delay detection. Consider monitoring a justified residual from a time-series model, using methods with dependence-aware limits, or sampling at a process-relevant interval. Validate the chosen approach on representative data and test its operational alarm burden. Never apply an individuals chart to dense sensor points as if each were an independent wafer outcome.</p>
+  </section>
+  <section data-section="worked-example">
+    <h2>Worked example: a wafer statistic</h2>
+    <p>Suppose a synthetic monitor records one mean thickness per wafer from a single chamber and one unchanged recipe. If wafer means are the decision units and are reasonably independent, an individuals chart is a plausible starting point. If instead five adjacent die sites are measured per wafer to estimate within-wafer nonuniformity, those sites form a spatially structured sample—not five independent wafers. The chart could monitor each wafer's site range or a prespecified uniformity statistic, while preserving wafer order. A single pooled chart across different products would require evidence that the populations are comparable. In every case, product specifications remain separate acceptance criteria.</p>
+  </section>
+  <section data-section="limitations">
+    <h2>Limitations and assumptions</h2>
+    <p>Three-sigma limits are not universal guarantees: estimated parameters, non-normal data, autocorrelation, nonstationarity, small samples, and repeated testing change false-alarm probabilities. A chart may detect a distributional change but miss an important tail or spatial defect mode. Stratification can improve interpretability but should reflect a causal or measurement distinction, not merely optimize a chart. Control-chart evidence should be combined with engineering context and measurement validation.</p>
+  </section>
+  <section data-section="review">
+    <h2>Review questions</h2>
+    <ol>
+      <li>What makes a subgroup rational for a particular fab decision?</li>
+      <li>Why can pooling multiple chambers conceal or fabricate a process change?</li>
+      <li>What is the difference between phase I and phase II chart use?</li>
+      <li>How would autocorrelation affect a standard individuals chart?</li>
+    </ol>
+  </section>
+  <section data-section="references">
+    <h2>References</h2>
+    <ul>
+      <li>NIST/SEMATECH, <a href="https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc31.htm">Engineering Statistics Handbook, Control Charts</a>.</li>
+      <li>NIST/SEMATECH, <a href="https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc32.htm">Shewhart Control Charts</a>.</li>
+      <li>NIST/SEMATECH, <a href="https://www.itl.nist.gov/div898/handbook/pmc/section1/pmc12.htm">Process or Product Monitoring and Control</a>.</li>
+    </ul>
+  </section>
+</article>

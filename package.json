@@ -1,0 +1,18 @@
+{
+  "name": "fabcontrolbook",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bilingual semiconductor manufacturing control engineering textbook",
+  "scripts": {
+    "build": "python3 tools/build_site.py --write-manifest",
+    "validate": "python3 tools/build_site.py --check && node --check assets/js/models.mjs && node --input-type=module --check < assets/js/site.js",
+    "test:models": "node --test tests/models.test.mjs",
+    "test:site": "python3 -m unittest discover -s tests -p 'test_*.py' -v",
+    "test:e2e": "playwright test",
+    "test": "npm run build && npm run validate && npm run test:models && npm run test:site && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

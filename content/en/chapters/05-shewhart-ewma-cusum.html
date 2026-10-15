@@ -1,0 +1,42 @@
+<article>
+  <h1>Shewhart, EWMA, and CUSUM Detection</h1>
+  <section data-section="objectives">
+    <h2>Learning objectives</h2>
+    <p>Compare Shewhart, exponentially weighted moving average (EWMA), and cumulative sum (CUSUM) charts; calculate their core statistics; and explain how shift size, sampling, assumptions, and alarm policy affect delay and false alarms.</p>
+  </section>
+  <section data-section="concepts">
+    <h2>Detection theory and equations</h2>
+    <p>All three chart families repeatedly test observations against a reference model. A Shewhart chart signals when a current statistic is far from the baseline. For standardized independent observations <code>z[k] = (x[k] − μ₀)/σ</code>, a two-sided rule may signal at |z[k]| &gt; 3. It is relatively responsive to large abrupt changes but uses little information from preceding samples. A three-sigma limit has a 0.0027 per-point exceedance probability only for known μ₀, σ and independent standard-normal observations; parameter estimation, skew, autocorrelation, and additional run rules alter this rate.</p>
+    <p>EWMA retains history recursively: <code>w[k] = λz[k] + (1 − λ)w[k−1]</code>, with <code>w[0] = 0</code> for a centered baseline. Smaller λ spreads weight farther into the past and improves sensitivity to some persistent small shifts, at the cost of slower response to abrupt large shifts. For independent unit-variance z values, <code>Var(w[k]) = λ/(2−λ) · [1−(1−λ)^(2k)]</code>. A time-varying limit is <code>±L√Var(w[k])</code>; the steady-state factor is <code>±L√(λ/(2−λ))</code>. Here λ and L must be selected for a stated false-alarm and detection objective, not copied without regard to sampling frequency.</p>
+    <p>A one-sided standardized CUSUM for upward shifts is <code>C⁺[k] = max(0, C⁺[k−1] + z[k] − κ)</code>; signal if C⁺[k] &gt; h. The downward counterpart is <code>C⁻[k] = max(0, C⁻[k−1] − z[k] − κ)</code>. Reference value κ is often chosen as half a target shift in standard-deviation units for a normal mean-shift design; h determines the alarm threshold. This is a design convention, not a universal optimum. Reset policy, head start, baseline estimation, subgroup size, and correlated data all affect performance. CUSUM accumulates weak evidence and can detect sustained small shifts efficiently, but may be harder to interpret operationally without a clear signal and reset procedure.</p>
+    <p>Average run length (ARL) is the expected number of plotted points to an alarm under specified conditions: ARL₀ under the in-control model and ARL₁ under a chosen shift. It is not elapsed time unless the sampling cadence is fixed and regular. Compare candidate charts with the same baseline, sampling, and alarm policy. Monte Carlo estimates need enough independent sequences and uncertainty intervals; analytical formulas require their own assumptions. In the finite-horizon labs, probability estimates show 95% Wilson intervals, while delay values are descriptive point summaries conditional on detected trials and have no interval. A single impressive detection example does not characterize long-run false alarms.</p>
+    <p>A monitoring rule also includes what happens after a signal: suppress duplicate alarms, freeze or reset chart state only under controlled criteria, identify affected material, and route evidence to an accountable response. Raising the threshold to ease alarm burden increases missed shifts or delay. Never translate an alarm into automatic recipe action without a validated controller and safety boundary.</p>
+  </section>
+  <section data-section="worked-example">
+    <h2>Worked example: subtle mean shift</h2>
+    <p>Let independent synthetic readings have baseline μ₀ = 0 and σ = 1. After a hypothetical 0.5σ upward shift, Shewhart checks each point against ±3; a single reading may not cross. With λ = 0.2, EWMA assigns 20% weight to the latest standardized point and retains 80% of its prior state; its steady-state standard deviation is √(0.2/1.8) ≈ 0.333. A two-sided CUSUM with κ = 0.25 accumulates positive increments while readings exceed that reference value. These calculations illustrate memory and scale, but do not establish a particular ARL or optimal alarm limit. That requires calibrated design or simulation under the intended sequence, estimated baseline, correlation, and missingness.</p>
+  </section>
+  <section data-section="limitations">
+    <h2>Assumptions and limitations</h2>
+    <p>Standard designs often assume a stable baseline, known or well-estimated parameters, a specified shift form, and independent observations. Fab data can contain autocorrelation, tool changes, product mix, measurement delay, and gradual drift. Such changes can distort nominal ARL and make alerts cluster. Multivariate signals create additional multiplicity and dependence. Report the design assumptions, in-control false-alarm objective, detection scenarios, sampling interval, and reset rules. Control limits remain estimates of process behavior, not specifications for product acceptance.</p>
+  </section>
+  <section data-section="review">
+    <h2>Review questions</h2>
+    <ol>
+      <li>Why is a Shewhart chart often responsive to large shifts but less sensitive to small persistent ones?</li>
+      <li>What does reducing EWMA λ change, and what trade-off follows?</li>
+      <li>For an intended 0.5σ shift, why might κ = 0.25 be a reasonable CUSUM design starting point?</li>
+      <li>Why is ARL measured in points rather than hours, and when can it be converted?</li>
+    </ol>
+  </section>
+  <section data-section="references">
+    <h2>References</h2>
+    <ul>
+      <li>NIST/SEMATECH, <a href="https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc321.htm">Shewhart Control Charts</a>.</li>
+      <li>NIST/SEMATECH, <a href="https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc323.htm">CUSUM Control Charts</a>.</li>
+      <li>NIST/SEMATECH, <a href="https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc324.htm">EWMA Control Charts</a>.</li>
+      <li>S. W. Roberts (1959), “Control Chart Tests Based on Geometric Moving Averages,” <i>Technometrics</i> 1(3), 239–250, <a href="https://doi.org/10.1080/00401706.1959.10489860">doi:10.1080/00401706.1959.10489860</a>.</li>
+      <li>E. S. Page (1954), “Continuous Inspection Schemes,” <i>Biometrika</i> 41(1/2), 100–115, <a href="https://doi.org/10.1093/biomet/41.1-2.100">doi:10.1093/biomet/41.1-2.100</a>.</li>
+    </ul>
+  </section>
+</article>

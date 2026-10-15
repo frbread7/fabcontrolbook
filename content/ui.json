@@ -1,0 +1,8 @@
+{
+  "en": {
+    "skip": "Skip to content", "subtitle": "Graduate engineering · manufacturing control", "primaryNav": "Primary navigation", "chapterNav": "Textbook navigation", "home": "Book overview", "lab": "Interactive labs", "references": "References", "languageToggle": "한국어", "chapterLabel": "Chapter", "footer": "Original educational work · synthetic examples only", "license": "License & provenance", "licenseHref": "license.html", "labHref": "lab.html", "referencesHref": "references.html", "indexHref": "index.html", "chapterPrefix": "chapters/"
+  },
+  "ko": {
+    "skip": "본문으로 건너뛰기", "subtitle": "대학원 수준 공학 · 제조 제어", "primaryNav": "주요 탐색", "chapterNav": "교재 탐색", "home": "교재 개요", "lab": "대화형 실험실", "references": "참고문헌", "languageToggle": "English", "chapterLabel": "장", "footer": "독립적으로 작성한 교육 자료 · 합성 예제만 사용", "license": "라이선스·출처", "licenseHref": "license.html", "labHref": "lab.html", "referencesHref": "references.html", "indexHref": "index.html", "chapterPrefix": "chapters/"
+  }
+}

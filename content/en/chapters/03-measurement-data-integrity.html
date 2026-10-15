@@ -1,0 +1,40 @@
+<article>
+  <h1>Measurement Noise, Sampling, and Data Integrity</h1>
+  <section data-section="objectives">
+    <h2>Learning objectives</h2>
+    <p>Separate process variation from measurement variation, reason about sampling and aliasing, quantify uncertainty in a monitored statistic, and define validation checks that protect downstream SPC and control decisions.</p>
+  </section>
+  <section data-section="concepts">
+    <h2>Concepts and measurement model</h2>
+    <p>A measured result can be represented as <code>Y = X + B + ε</code>, where <code>X</code> is the measurand, <code>B</code> is a bias term, and <code>ε</code> is random measurement error. In practice, the observation also depends on tool, method, operator, calibration, environment, and sample preparation. Repeatability describes variation under closely repeated conditions; reproducibility includes changed conditions. A stable gauge can still be biased, and a precise gauge can still be too noisy for a small process shift.</p>
+    <p>For independent, zero-mean errors with standard deviation σ<sub>m</sub> and independent process observations with standard deviation σ<sub>p</sub>, total observed variance is σ<sub>y</sub><sup>2</sup> = σ<sub>p</sub><sup>2</sup> + σ<sub>m</sub><sup>2</sup>. This variance decomposition fails when terms are correlated or when bias drifts. Repeated measurements on one wafer estimate some measurement variability but do not create independent process samples. A measurement-system study should reflect the actual sampling design and relevant factors, not a convenient laboratory repeat.</p>
+    <p>Sampling interval sets what can be seen. If a sensor samples too slowly relative to a transient, aliasing may make a rapid oscillation appear as a slower or absent pattern. A sampling theorem provides a lower bound for band-limited signals under ideal assumptions, but industrial traces also face filtering, trigger, and clock limitations. For a run-level statistic, define the signal window, excluded startup/shutdown regions, filters, missing-data policy, and feature units. These choices are part of the monitor specification and should be versioned.</p>
+    <p>Noise changes chart performance. If individual independent measurements have standard deviation σ, the standard error of an average of n observations is σ/√n. That reduction does not apply when samples are positively autocorrelated. For a stationary series with autocorrelation ρ<sub>k</sub>, the variance of the sample mean is approximately σ²/n times [1 + 2Σρ<sub>k</sub>] over relevant lags (with finite-sample weights). Treating correlated readings as independent makes limits too narrow and alarms too frequent. Subgrouping should therefore follow process physics and timing, not an arbitrary row count.</p>
+    <p>Integrity checks include units and scale, monotonic and plausible timestamps, cadence, duplicate IDs, missingness, range and saturation, calibration state, recipe/context completeness, and transformation version. A check can mark data unsuitable for a particular analysis without asserting that the physical process is faulty. Preserve raw and cleaned data, the rejection reason, and the number of observations affected. Corrections must be traceable; overwriting raw sensor values prevents forensic analysis.</p>
+  </section>
+  <section data-section="worked-example">
+    <h2>Worked example: duplicate measurements</h2>
+    <p>A monitor receives 100 readings labeled independent, with sample standard deviation 0.20 units. A replay bug duplicated each sample, producing 200 rows but no new information. The apparent standard error falls from 0.020 to about 0.014 if the rows are treated as independent, falsely implying greater precision. Deduplicate using source event identity, retain a replay flag and ingestion record, then calculate uncertainty on the original sampling units. If the original series is autocorrelated, estimate or model that dependence rather than relying on the independent formula. Never use row count as a proxy for independent evidence.</p>
+  </section>
+  <section data-section="limitations">
+    <h2>Limitations and decision risks</h2>
+    <p>Variance decomposition is only as useful as its assumptions and experimental design. Unmodeled calibration drift, changing gauges, selection bias, censoring, non-normal tails, and common-mode disturbances can dominate. A control limit built from corrupted data can institutionalize a bad baseline. A statistically significant difference may be operationally irrelevant; a small number of measurements may miss an important excursion. Keep control limits separate from engineering specification limits, and evaluate uncertainty and practical effect size together.</p>
+  </section>
+  <section data-section="review">
+    <h2>Review questions</h2>
+    <ol>
+      <li>Under what assumptions does averaging n measurements reduce standard error by √n?</li>
+      <li>How can aliasing hide a process transient?</li>
+      <li>Why is a stable measurement process not necessarily an unbiased one?</li>
+      <li>What raw information should remain available after data cleaning?</li>
+    </ol>
+  </section>
+  <section data-section="references">
+    <h2>References</h2>
+    <ul>
+      <li>NIST/SEMATECH, <a href="https://www.nist.gov/publications/nistsematech-engineering-statistics-handbook-chapter-2-measurement-process">Measurement Process Characterization</a>.</li>
+      <li>NIST/SEMATECH, <a href="https://www.itl.nist.gov/div898/handbook/mpc/mpc.htm">Engineering Statistics Handbook, Measurement Process Characterization</a>.</li>
+      <li>NIST/SEMATECH, <a href="https://www.itl.nist.gov/div898/handbook/mpc/section2/mpc2.htm">Statistical Control of a Measurement Process</a>.</li>
+    </ul>
+  </section>
+</article>

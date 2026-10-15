@@ -1,0 +1,8 @@
+{
+  "experiments": [
+    {"id":"spc-performance","chapterId":"c05-shewhart-ewma-cusum","title":{"en":"SPC detection performance","ko":"SPC 검출 성능"},"kind":{"en":"Detection comparison","ko":"검출 비교"},"description":{"en":"Compare false-alarm probability and detection delay for Shewhart, EWMA, and two-sided CUSUM charts under a reproducible synthetic shift.","ko":"재현 가능한 합성 변화에서 Shewhart·EWMA·양측 CUSUM 관리도의 오경보 확률과 검출 지연을 비교합니다."}},
+    {"id":"fdc-intelligence","chapterId":"c07-fdc-multivariate-false-alarms","title":{"en":"FDC signal intelligence","ko":"FDC 신호 분석"},"kind":{"en":"Signal-feature explorer","ko":"신호 특징 탐색"},"description":{"en":"Inspect synthetic recipe-phase traces using mean, dispersion, slope, missingness, and context-mismatch features with explicit per-feature rules.","ko":"평균·산포·기울기·결측·맥락 불일치 특징과 명시적 특징별 규칙으로 합성 레시피 단계 트레이스를 살펴봅니다."}},
+    {"id":"r2r-control","chapterId":"c09-run-to-run-apc","title":{"en":"Run-to-run APC","ko":"런투런 APC"},"kind":{"en":"Control simulation","ko":"제어 시뮬레이션"},"description":{"en":"Explore a bounded first-order batch process with EWMA residual estimation, actuator limits, transport delay, disturbance, and measurement noise.","ko":"EWMA 잔차 추정, 액추에이터 한계, 지연, 외란, 측정 잡음이 포함된 제한된 1차 배치 공정을 탐색합니다."}},
+    {"id":"alarm-strategy","chapterId":"c12-alarm-management-disposition","title":{"en":"Manufacturing alarm strategy","ko":"제조 알람 전략"},"kind":{"en":"Alarm-policy simulator","ko":"알람 정책 시뮬레이터"},"description":{"en":"Estimate false-call and missed-excursion tradeoffs from persistence, k-of-n voting, threshold, and correlated synthetic signals.","ko":"지속 조건, k-of-n 투표, 임계값, 상관된 합성 신호로 오경보와 이상 누락의 절충을 추정합니다."}}
+  ]
+}

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 330" role="img" aria-labelledby="title desc">
+ <title id="title">Manufacturing control hierarchy</title><desc id="desc">Signals and context flow upward to monitoring; validated evidence flows to engineering decisions and bounded control actions.</desc>
+ <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0 0v6l9-3z" fill="#426d7a"/></marker></defs>
+ <rect width="1100" height="330" rx="18" fill="#f3f7f7"/>
+ <g font-family="system-ui,sans-serif" text-anchor="middle"><g fill="#183443"><text x="150" y="62" font-size="20" font-weight="700">Physical process</text><text x="390" y="62" font-size="20" font-weight="700">Sensors + context</text><text x="650" y="62" font-size="20" font-weight="700">SPC / FDC</text><text x="900" y="62" font-size="20" font-weight="700">APC / response</text></g>
+ <g fill="#dcebed" stroke="#6d9ba4" stroke-width="2"><rect x="55" y="100" width="190" height="115" rx="12"/><rect x="290" y="100" width="200" height="115" rx="12"/><rect x="550" y="100" width="200" height="115" rx="12"/><rect x="810" y="100" width="230" height="115" rx="12"/></g>
+ <g fill="#31515c" font-size="15"><text x="150" y="147">Tool · chamber · recipe</text><text x="150" y="176">material · operation</text><text x="390" y="147">sensor values · timestamps</text><text x="390" y="176">wafer/lot/tool identity</text><text x="650" y="147">baselines · residuals</text><text x="650" y="176">alarms · uncertainty</text><text x="925" y="147">engineer disposition</text><text x="925" y="176">bounded control action</text></g>
+ <g fill="none" stroke="#426d7a" stroke-width="4" marker-end="url(#arrow)"><path d="M246 156h37"/><path d="M492 156h47"/><path d="M752 156h51"/></g>
+ <path d="M925 229v48H150v-49" fill="none" stroke="#bf5836" stroke-width="3" stroke-dasharray="8 7" marker-end="url(#arrow)"/>
+ <text x="545" y="306" fill="#81381f" font-size="16">Actions return to the process only within approved constraints and change control.</text></g>
+</svg>
