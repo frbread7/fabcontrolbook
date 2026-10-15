@@ -14,15 +14,15 @@
 
 The book chapters and translations were composed for this project; equations express standard mathematical relationships and factual statements cite references. Upstream chapter text and figures were consulted for scope boundaries only, not translated or paraphrased. The SVG artwork is authored in this repository. All lab/case datasets are generated. The code and text license boundary is purpose-based as described by `LICENSE.md`.
 
-## Rights gates before release
+## Publication and rights record
 
 - [x] Exact source revisions and reviewed paths are recorded.
 - [x] Each upstream book's code/content license split was read at the pinned revision; third-party terms remain separate.
 - [x] Upstream use is `reference-only`; no upstream code/content/asset reuse is claimed.
 - [x] Original educational content and original code have distinct declared licenses.
-- [x] The generated site artifact includes the licensed notices. Initial in-progress Pages deployment succeeded from source revision `cd31cb3909c9f28662fa2ca5a8b283a75d9b0c61` ([Actions run 38666002897](https://github.com/frbread7/fabcontrolbook/actions/runs/38666002897)); all 39 generated resources (36 HTML routes and 3 SVG/JavaScript assets) returned HTTP 200, and production Playwright passed 12/12 across desktop, tablet, and mobile. The 1.0.0 manifest-alignment revision `67f67f8058fa1db12f60363bac18434e978a3466` was also deployed successfully ([run 38666815992](https://github.com/frbread7/fabcontrolbook/actions/runs/38666815992)) and passed the same 39-resource and 12/12 production checks. These are pre-release checks; the final stable-release deployment is still gated.
+- [x] The generated site artifact includes the declared licensed notices. The stable v1.0.0 content source `2dfb22bf86759c0e273ec95e4d394f7e3255a366` passed [Actions run 38667270316](https://github.com/frbread7/fabcontrolbook/actions/runs/38667270316) and deployed as Pages deployment `7081671694`. A complete production inventory found 44/44 resources available (36 HTML routes and eight non-HTML files: three license/attribution documents, two SVGs, CSS, JavaScript, and the model module); Playwright passed 12/12 across desktop, tablet, and mobile. Earlier partial smoke counts are superseded by this full inventory.
 - [x] Internal independent technical, content, bilingual, architecture, QA, requirements, security, and provenance review is recorded in `docs/TECHNICAL_REVIEW.md`; no P0/P1 findings remain and the reviewed P2 findings are closed. This is not legal approval or contributor-rights certification.
-- [ ] Stable v1.0.0 release, its successful Pages deployment, and final live chapter/lab checks all match a single full source revision.
-- [ ] The final My Library registration records release, deployment, review, route, experiment, and provenance evidence.
+- [x] The stable v1.0.0 content release is preserved at its original tag and source revision. This v1.0.1 change set corrects release/provenance records and release metadata without changing chapters or simulator behavior.
+- [x] The [My Library FabControlBook record](https://github.com/frbread7/books/blob/main/catalog/books/fabcontrolbook.json) is the publication-status authority. The separate repository manifest intentionally remains `in-progress` as a registration input; it does not assert publication or substitute for the portal's evidence gate.
 
 This record identifies reviewed material, not every possible third-party right. License and attribution statements above record the project's declarations; they do not establish a transfer or certify contributor ownership or authority. Automated checks do not certify authorship, license applicability, non-infringement, or legal compliance. The review is not legal advice.
