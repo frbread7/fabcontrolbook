@@ -4,9 +4,11 @@ import html
 import json
 import re
 import sys
+import tempfile
 import unittest
 from html.parser import HTMLParser
 from pathlib import Path
+from unittest.mock import patch
 from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -117,6 +119,19 @@ class FabControlSiteTests(unittest.TestCase):
         self.assertIn("83, 107–125", refs["liu-r2r-survey"]["publisher"])
         chapters = (ROOT / "content/en/chapters/08-chamber-matching-tool-health.html").read_text(encoding="utf-8")
         self.assertIn("https://www.iso.org/standard/69418.html", chapters)
+
+    def test_manifest_refresh_preserves_editorial_date(self):
+        data, _, labs = build_site.load_data()
+        with tempfile.TemporaryDirectory() as directory:
+            source_manifest = {"lastUpdated": "2001-02-03", "repositoryUrl": "https://example.invalid/book"}
+            manifest_path = Path(directory) / "library-manifest.json"
+            manifest_path.write_text(json.dumps(source_manifest), encoding="utf-8")
+            with patch.object(build_site, "ROOT", Path(directory)):
+                build_site.update_manifest(data, labs)
+            refreshed = json.loads(manifest_path.read_text(encoding="utf-8"))
+            self.assertEqual(refreshed["lastUpdated"], "2001-02-03")
+            self.assertEqual(refreshed["chapterCount"], len(data["chapters"]))
+            self.assertEqual(len(refreshed["experiments"]), len(labs["experiments"]))
 
     def test_rebuild_removes_deleted_generated_routes(self):
         obsolete = SITE / "chapters/99-removed-chapter.html"

@@ -4,26 +4,26 @@ const locale = document.documentElement.lang === 'ko' ? 'ko' : 'en';
 const messages = {
   en: {
     noMonteCarlo: 'No detection within horizon', error: 'Check the input ranges and try again.',
-    spcIntro: 'Synthetic Monte Carlo summary (finite horizon):', falseAlarm: 'no-shift horizon alarm probability', detection: 'post-change detection', medianDelay: 'median detected-run delay (point estimate, samples)', ci95: '95% Wilson interval',
-    fdc: 'Phase feature summary:', flagged: 'flagged', clear: 'not flagged', missing: 'missing fraction', context: 'context mismatch', phaseNames: ['load','ramp','steady','purge'],
+    spcIntro: 'Synthetic Monte Carlo summary (finite horizon):', falseAlarm: 'no-shift horizon alarm probability', detection: 'post-change detection', medianDelay: 'median detected-run delay (point estimate, samples)', ci95: '95% Wilson interval', prechange: 'shifted trials: first alarm before change', noSignal: 'shifted trials: no signal', spcCaveat: 'Shifted first-signal outcomes (pre-change / post-change / none) sum to all trials. The no-shift full-horizon probability is not ARL; finite horizon is not ARL. Different in-control calibration prevents equal-ARL comparison.',
+    fdc: 'Phase feature summary:', flagged: 'flagged', clear: 'not flagged', missing: 'phase-wide missing fraction', channelMissing: 'within-phase channel missingness', context: 'context mismatch', phaseNames: ['load','ramp','steady','purge'], fdcCaveat: '36 feature comparisons across channels/phases are correlated and unadjusted for multiplicity. A flag is not fault identity.',
     meanFeature: 'max |mean z|', spreadFeature: 'max |spread z|', slopeFeature: 'max |slope z|',
     fdcLegend: 'Orange=pressure index; blue=flow index. Statistical threshold is per feature and is not multiplicity-adjusted; it is not an equipment alarm setting.',
     apc: 'Synthetic 70-run result:', rmse: 'post-disturbance RMSE', peak: 'peak |output|', saturation: 'actuator at limit',
-    apcNote: (run) => `Disturbance starts at run ${run}. Orange=process output; blue=actuator correction.`,
-    alarm: 'Synthetic Monte Carlo summary:', delay: 'median detected-run delay (point estimate, samples)', meanDelay: 'mean detected-run delay (point estimate, samples)',
+    apcNote: (run, delay, metrology, sources) => `Disturbance starts at run ${run}. Actuation delay dₐ=${delay}; metrology delay m=${metrology} runs. Result lineage near the change: ${sources.map(([decision, source]) => `after run ${decision} ← result from ${source === null ? 'no run yet' : `run ${source}`}`).join('; ')}. Orange=process output; blue=actuator correction. Synthetic model only; no equipment stability claim.`,
+    alarm: 'Synthetic Monte Carlo summary:', delay: 'median detected-run delay (point estimate, samples)', meanDelay: 'mean detected-run delay (point estimate, samples)', preEvent: 'injected trials: first alarm before event', noAlarm: 'injected trials: no first alarm', alarmCaveat: 'Injected outcomes (pre-event / post-event / none) sum to all trials. Channel correlation is cross-sectional; temporal correlation is absent. No external alert recommendation.',
     spcNote: (run, trials) => `Change begins at sample ${run}; trials=${trials}. “No detection within horizon” means no run signaled before the finite horizon.`,
     alarmNote: (trials, run, vote) => `${trials} independent synthetic trials; event starts at sample ${run}; vote=${vote}-of-n.`,
     percent: (x) => `${(100*x).toFixed(1)}%`, interval: (xs) => `${(100*xs[0]).toFixed(1)}–${(100*xs[1]).toFixed(1)}%`, samples: (x) => x === null ? '—' : `${x.toFixed(1)}`
   },
   ko: {
     noMonteCarlo: '관측 구간 내 검출 없음', error: '입력 범위를 확인하고 다시 실행하세요.',
-    spcIntro: '합성 몬테카를로 요약(유한 구간):', falseAlarm: '무변화 전체 구간 알람 확률', detection: '변화 후 검출', medianDelay: '검출 시행 중앙 지연(점 추정, 표본)', ci95: '95% 윌슨 구간',
-    fdc: '단계별 특징 요약:', flagged: '표시', clear: '미표시', missing: '결측 비율', context: '맥락 불일치', phaseNames: ['투입','상승','정상 처리','퍼지'],
+    spcIntro: '합성 몬테카를로 요약(유한 구간):', falseAlarm: '무변화 전체 구간 알람 확률', detection: '변화 후 검출', medianDelay: '검출 시행 중앙 지연(점 추정, 표본)', ci95: '95% 윌슨 구간', prechange: '변화 주입 시행: 변화 전 첫 알람', noSignal: '변화 주입 시행: 신호 없음', spcCaveat: '변화 주입 결과(변화 전 / 변화 후 / 없음)는 전체 시행 수와 같습니다. 무변화 전체 구간 확률은 ARL이 아니며 유한 구간은 ARL이 아닙니다. 관리 상태 보정이 달라 동일 ARL 비교가 아닙니다.',
+    fdc: '단계별 특징 요약:', flagged: '표시', clear: '미표시', missing: '단계 전체 결측 비율', channelMissing: '단계 내 채널 결측률', context: '맥락 불일치', phaseNames: ['투입','상승','정상 처리','퍼지'], fdcCaveat: '채널과 단계에 걸친 36개 특징 비교는 서로 상관되며 다중검정 보정이 없습니다. 표시는 고장 원인 식별이 아닙니다.',
     meanFeature: '최대 |평균 z|', spreadFeature: '최대 |산포 z|', slopeFeature: '최대 |기울기 z|',
     fdcLegend: '주황색=압력 지수, 파란색=유량 지수. 통계 임계값은 특징별로 적용하며 다중검정을 보정하지 않습니다. 장비 알람 설정값이 아닙니다.',
     apc: '합성 70회 런 결과:', rmse: '외란 후 RMSE', peak: '최대 |출력|', saturation: '액추에이터 한계 도달',
-    apcNote: (run) => `외란은 ${run}번째 런부터 시작합니다. 주황색=공정 출력, 파란색=액추에이터 보정.`,
-    alarm: '합성 몬테카를로 요약:', delay: '검출 시행 중앙 지연(점 추정, 표본)', meanDelay: '검출 시행 평균 지연(점 추정, 표본)',
+    apcNote: (run, delay, metrology, sources) => `외란은 ${run}번째 런부터 시작합니다. 액추에이터 추가 지연 dₐ=${delay}; 계측 지연 m=${metrology}회. 변화 부근의 결과 계보: ${sources.map(([decision, source]) => `${decision}번째 런 뒤 ← ${source === null ? '도착한 결과 없음' : `${source}번째 런 결과`}`).join('; ')}. 주황색=공정 출력, 파란색=액추에이터 보정. 합성 모델이며 실제 장비 안정성 주장이 아닙니다.`,
+    alarm: '합성 몬테카를로 요약:', delay: '검출 시행 중앙 지연(점 추정, 표본)', meanDelay: '검출 시행 평균 지연(점 추정, 표본)', preEvent: '이상 주입 시행: 사건 전 첫 알람', noAlarm: '이상 주입 시행: 첫 알람 없음', alarmCaveat: '이상 주입 결과(사건 전 / 사건 후 / 없음)는 전체 시행 수와 같습니다. 채널 상관은 같은 표본 시점 간 상관이며 시간 상관은 없습니다. 외부 알람 권고가 아닙니다.',
     spcNote: (run, trials) => `변화 시작 표본=${run}; 반복=${trials}. ‘구간 내 검출 없음’은 유한 관측 구간 안에서 신호가 없었음을 뜻합니다.`,
     alarmNote: (trials, run, vote) => `독립 합성 시행 ${trials}회; 사건 시작 표본=${run}; 투표=${vote}-of-n.`,
     percent: (x) => `${(100*x).toFixed(1)}%`, interval: (xs) => `${(100*xs[0]).toFixed(1)}–${(100*xs[1]).toFixed(1)}%`, samples: (x) => x === null ? '—' : `${x.toFixed(1)}`
@@ -93,8 +93,8 @@ function runSpc() {
   try {
     const result = simulateSpc({ shift: value('spc-shift'), noise: value('spc-noise'), lambda: value('spc-lambda'), horizon: value('spc-horizon'), seed: value('spc-seed'), mode: document.getElementById('spc-mode').value });
     draw(document.getElementById('spc-chart'), [{ values: result.observations }], { min: -3.5, max: 3.5, horizontalLines: [-3, 3] });
-    const lines = result.series.map(s => `${s.name}: ${messages.falseAlarm} ${messages.percent(s.falseAlarmRate)} (${messages.ci95} ${messages.interval(s.falseAlarmCI95)}), ${messages.detection} ${messages.percent(s.detectionRate)} (${messages.ci95} ${messages.interval(s.detectionCI95)}), ${messages.medianDelay} ${messages.samples(s.medianDelay)}`);
-    write('spc-results', `${messages.spcIntro}\n${lines.join('\n')}\n${messages.spcNote(result.changeAt + 1, result.trials)}`);
+    const lines = result.series.map(s => `${s.name}: ${messages.falseAlarm} ${messages.percent(s.falseAlarmRate)} (${messages.ci95} ${messages.interval(s.falseAlarmCI95)}), ${messages.prechange} ${s.shiftedPrechangeFirstAlarmCount}/${result.trials} (${messages.percent(s.shiftedPrechangeFirstAlarmRate)}), ${messages.detection} ${s.shiftedPostchangeFirstAlarmCount}/${result.trials} (${messages.percent(s.detectionRate)}; ${messages.ci95} ${messages.interval(s.detectionCI95)}), ${messages.noSignal} ${s.shiftedNoSignalCount}/${result.trials} (${messages.percent(s.shiftedNoSignalRate)}), ${messages.medianDelay} ${messages.samples(s.medianDelay)}`);
+    write('spc-results', `${messages.spcIntro}\n${lines.join('\n')}\n${messages.spcNote(result.changeAt + 1, result.trials)} ${messages.spcCaveat}`);
   } catch (err) { error('spc-results', err); }
 }
 
@@ -107,24 +107,30 @@ function runFdc() {
       const mean = Math.max(...m.channelFeatures.map(feature => Math.abs(feature.meanZ)));
       const spread = Math.max(...m.channelFeatures.map(feature => Math.abs(feature.dispersionZ)));
       const slope = Math.max(...m.channelFeatures.map(feature => Math.abs(feature.slopeZ)));
-      return `${phaseIndex.get(m.phase)}: ${messages.meanFeature}=${mean.toFixed(2)}, ${messages.spreadFeature}=${spread.toFixed(2)}, ${messages.slopeFeature}=${slope.toFixed(2)} (${m.flagged ? messages.flagged : messages.clear}), ${messages.missing} ${(100*m.missingRate).toFixed(1)}%, ${messages.context} ${(100*m.contextMismatch).toFixed(1)}%`;
+      const missingChannels = m.missingByChannel.map((rate, index) => `CH${index + 1} ${(100*rate).toFixed(1)}%`).join(', ');
+      return `${phaseIndex.get(m.phase)}: ${messages.meanFeature}=${mean.toFixed(2)}, ${messages.spreadFeature}=${spread.toFixed(2)}, ${messages.slopeFeature}=${slope.toFixed(2)} (${m.flagged ? messages.flagged : messages.clear}), ${messages.missing} ${(100*m.missingRate).toFixed(1)}%; ${messages.channelMissing}: ${missingChannels}, ${messages.context} ${(100*m.contextMismatch).toFixed(1)}%`;
     });
-    write('fdc-results', `${messages.fdc}\n${lines.join('\n')}\n${messages.fdcLegend}`);
+    write('fdc-results', `${messages.fdc}\n${lines.join('\n')}\n${messages.fdcLegend} ${messages.fdcCaveat}`);
   } catch (err) { error('fdc-results', err); }
 }
 
 function runApc() {
   try {
-    const result = simulateR2r({ gain: value('apc-gain'), lag: value('apc-lag'), delay: value('apc-delay'), lambda: value('apc-lambda'), noise: value('apc-noise'), disturbance: value('apc-disturbance'), limit: value('apc-limit'), seed: value('apc-seed') });
+    const result = simulateR2r({ gain: value('apc-gain'), lag: value('apc-lag'), delay: value('apc-delay'), metrologyDelay: value('apc-metrology-delay'), lambda: value('apc-lambda'), noise: value('apc-noise'), disturbance: value('apc-disturbance'), limit: value('apc-limit'), seed: value('apc-seed') });
     draw(document.getElementById('apc-chart'), [{ values: result.output }, { values: result.control }]);
-    write('apc-results', `${messages.apc}\n${messages.rmse}: ${result.rmse.toFixed(3)}; ${messages.peak}: ${result.peak.toFixed(3)}; ${messages.saturation}: ${messages.percent(result.saturationFraction)}.\n${messages.apcNote(result.disturbanceAt + 1)}`);
+    const sources = Array.from({ length: 4 }, (_, offset) => {
+      const k = result.disturbanceAt + offset;
+      const source = result.metrologySourceRun[k];
+      return [k + 1, source === null ? null : source + 1];
+    });
+    write('apc-results', `${messages.apc}\n${messages.rmse}: ${result.rmse.toFixed(3)}; ${messages.peak}: ${result.peak.toFixed(3)}; ${messages.saturation}: ${messages.percent(result.saturationFraction)}.\n${messages.apcNote(result.disturbanceAt + 1, value('apc-delay'), value('apc-metrology-delay'), sources)}`);
   } catch (err) { error('apc-results', err); }
 }
 
 function runAlarm() {
   try {
     const result = simulateAlarm({ threshold: value('alarm-threshold'), persistence: value('alarm-persistence'), signals: value('alarm-signals'), vote: document.getElementById('alarm-vote').value, correlation: value('alarm-correlation'), shift: value('alarm-shift'), seed: value('alarm-seed') });
-    write('alarm-results', `${messages.alarm}\n${messages.falseAlarm}: ${messages.percent(result.falseAlarmRate)} (${messages.ci95} ${messages.interval(result.falseAlarmCI95)}); ${messages.detection}: ${messages.percent(result.detectionRate)} (${messages.ci95} ${messages.interval(result.detectionCI95)}); ${messages.medianDelay}: ${messages.samples(result.medianDelay)}; ${messages.meanDelay}: ${messages.samples(result.meanDelay)}.\n${messages.alarmNote(result.trials, result.changeAt + 1, result.vote)}`);
+    write('alarm-results', `${messages.alarm}\n${messages.falseAlarm}: ${messages.percent(result.falseAlarmRate)} (${messages.ci95} ${messages.interval(result.falseAlarmCI95)}); ${messages.preEvent}: ${result.injectedPreEventAlarmCount}/${result.trials} (${messages.percent(result.injectedPreEventAlarmRate)}); ${messages.detection}: ${result.postEventDetectedCount}/${result.trials} (${messages.percent(result.detectionRate)}; ${messages.ci95} ${messages.interval(result.detectionCI95)}); ${messages.noAlarm}: ${result.noFirstAlarmCount}/${result.trials} (${messages.percent(result.noFirstAlarmRate)}); ${messages.medianDelay}: ${messages.samples(result.medianDelay)}; ${messages.meanDelay}: ${messages.samples(result.meanDelay)}.\n${messages.alarmNote(result.trials, result.changeAt + 1, result.vote)} ${messages.alarmCaveat}`);
   } catch (err) { error('alarm-results', err); }
 }
 

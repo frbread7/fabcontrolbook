@@ -14,9 +14,8 @@
   </section>
   <section data-section="worked-example">
     <h2>Worked example</h2>
-    <p>Consider a synthetic plasma clean with 1 Hz pressure and RF-forward-power records, sampled over a 60 s stabilization phase followed by a 120 s process phase. Recipe events label the phases. Suppose 3 pressure samples are missing from the process phase. Do not interpolate across a long dropout by default: mark the phase incomplete and calculate coverage as 117/120 = 97.5%. If the approved feature policy allows summaries above 95% coverage, calculate a time-weighted median pressure and robust spread from valid observations, while retaining a missingness flag.</p>
-    <p>Suppose process-phase median pressure is 1.8 Pa against a recipe- and chamber-specific historical center of 1.6 Pa. This is a deviation to investigate, not proof of a leak. Check gauge health, throttle-valve position, gas flow, recipe revision, chamber cleans, and sensor timestamps. Compare the pressure response with RF power and endpoint signals. A pressure difference with stable valve demand but changed gas flow suggests a different hypothesis than a shift accompanied by saturated gauge values.</p>
-    <p>For detection, a robust standardized feature might use <em>r = (x − median<sub>baseline</sub>)/(1.4826·MAD<sub>baseline</sub>)</em>, when MAD is nonzero and baseline observations are comparable. The factor makes MAD estimate Gaussian standard deviation under an approximate normal model; it does not make a skewed or multimodal process normal. Define baseline inclusion, recalibration, and alert thresholds prospectively. A threshold is an alarm policy choice, not a product specification limit.</p>
+    <p>Consider a synthetic 1 Hz trace with a declared 120-s process phase, hence 120 expected timestamp slots. Three pressure slots are absent; coverage is 117/120 = 97.5%, while the missingness pattern and timestamps remain attached to the feature record. Because cadence is uniform, compute the ordinary median over the 117 observed samples and report coverage separately. This is a sample-weighted summary under the declared 1 Hz grid; it does not silently assign elapsed-time weights. For irregular cadence, first declare whether the target is a sample distribution or a time-occupancy distribution; a time-weighted statistic needs explicit interval weights and a rule for long gaps. Do not interpolate gaps by default, and do not treat missing slots as pressure zero.</p>
+    <p>If a previously approved feature policy permits summaries above 95% coverage, the 97.5% phase may be summarized with a missingness flag; the threshold itself is a synthetic policy assumption, not a validated fab criterion. For the same synthetic trace, a median of 1.8 Pa against a comparable chamber/recipe baseline median of 1.6 Pa is a deviation for investigation—not evidence by itself of a leak. Check event alignment, gauge quality, valve position, gas-flow records, recipe revision, and maintenance context before classification or response.</p>
   </section>
   <section data-section="limitations">
     <h2>Limitations and engineering cautions</h2>
@@ -39,8 +38,8 @@
     <ul>
       <li>U.S. NIST/SEMATECH, <a href="https://www.itl.nist.gov/div898/handbook/">e-Handbook of Statistical Methods</a>, process monitoring and exploratory data analysis chapters.</li>
       <li>U.S. National Institute of Standards and Technology, <a href="https://www.nist.gov/pml/time-and-frequency-division/time-services">Time Services</a>, background on time standards and traceability.</li>
-      <li>NIST/SEMATECH, <a href="https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc324.htm">EWMA control charts</a>, background on statistical monitoring and time-weighted signals.</li>
     </ul>
+    <p>Segmentation, coverage threshold, and missingness rules in this worked example are authored synthetic design choices; the cited statistical handbook does not validate them for fab traces.</p>
     <p>Original chapter. No upstream prose, figures, or code are reused. Synthetic values are instructional only.</p>
   </section>
 </article>

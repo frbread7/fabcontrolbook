@@ -14,7 +14,7 @@
   </section>
   <section data-section="worked-example">
     <h2>Worked example: duplicate measurements</h2>
-    <p>A monitor receives 100 readings labeled independent, with sample standard deviation 0.20 units. A replay bug duplicated each sample, producing 200 rows but no new information. The apparent standard error falls from 0.020 to about 0.014 if the rows are treated as independent, falsely implying greater precision. Deduplicate using source event identity, retain a replay flag and ingestion record, then calculate uncertainty on the original sampling units. If the original series is autocorrelated, estimate or model that dependence rather than relying on the independent formula. Never use row count as a proxy for independent evidence.</p>
+    <p>Suppose 100 unique wafers have sample SD 0.20 units. The independent-unit standard error is 0.20/√100 = 0.020. A replay duplicates every source-event ID, yielding 200 rows but still 100 wafers and 100 independent sampling units; the correct standard error remains 0.020. The naive row-based value 0.20/√200 = 0.0141 is unjustified pseudoreplication. Deduplicate by source-event identity for the estimate, preserve the replayed rows and ingest audit for lineage, and count unique wafers—not rows—as the denominator. If wafers are clustered in lots or adjacent outputs are serially dependent, the effective information can be lower still; model or sample at the independent experimental unit appropriate to the question.</p>
   </section>
   <section data-section="limitations">
     <h2>Limitations and decision risks</h2>

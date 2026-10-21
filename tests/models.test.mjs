@@ -46,12 +46,20 @@ function referenceSpcSummary(args) {
   }
   return names.map(name => {
     const falseAlarms = baseline.filter(run => run.signalTimes[name] !== null).length;
+    const prechange = shifted.filter(run => run.signalTimes[name] !== null && run.signalTimes[name] < run.changeAt).length;
     const detected = shifted.filter(run => run.signalTimes[name] !== null && run.signalTimes[name] >= run.changeAt);
+    const noSignal = args.trials - prechange - detected.length;
     const delays = detected.map(run => run.signalTimes[name] - run.changeAt + 1);
     return {
       name,
       falseAlarmRate: falseAlarms / args.trials,
       falseAlarmCI95: wilson(falseAlarms, args.trials),
+      shiftedPrechangeFirstAlarmCount: prechange,
+      shiftedPrechangeFirstAlarmRate: prechange / args.trials,
+      shiftedPostchangeFirstAlarmCount: detected.length,
+      shiftedPostchangeFirstAlarmRate: detected.length / args.trials,
+      shiftedNoSignalCount: noSignal,
+      shiftedNoSignalRate: noSignal / args.trials,
       detectionRate: detected.length / args.trials,
       detectionCI95: wilson(detected.length, args.trials),
       medianDelay: median(delays)
@@ -91,13 +99,20 @@ function referenceAlarmSummary(args) {
   }
   const changeAt = Math.floor(args.horizon / 2);
   const detected = injected.filter(run => run.alarmAt !== null && run.alarmAt >= changeAt);
+  const preEvent = injected.filter(run => run.alarmAt !== null && run.alarmAt < changeAt).length;
+  const noAlarm = args.trials - preEvent - detected.length;
   const delays = detected.map(run => run.alarmAt - changeAt + 1);
   return {
     result: {
       falseAlarmRate: baseline.filter(run => run.alarmAt !== null).length / args.trials,
       falseAlarmCI95: wilson(baseline.filter(run => run.alarmAt !== null).length, args.trials),
+      injectedPreEventAlarmCount: preEvent,
+      injectedPreEventAlarmRate: preEvent / args.trials,
+      postEventDetectedCount: detected.length,
       detectionRate: detected.length / args.trials,
       detectionCI95: wilson(detected.length, args.trials),
+      noFirstAlarmCount: noAlarm,
+      noFirstAlarmRate: noAlarm / args.trials,
       medianDelay: median(delays),
       meanDelay: delays.length ? delays.reduce((sum, value) => sum + value, 0) / delays.length : null,
       trials: args.trials, vote, changeAt
@@ -155,6 +170,9 @@ test('FDC phase statistics expose expected deterministic injected signatures', (
   assert.ok(Math.max(...ripple.channelFeatures.map(feature => Math.abs(feature.dispersionZ))) > 2.5);
   const skipped = simulateFdc({ fault: 'phase-skip', seed: 4107 }).phaseMetrics.find(metric => metric.phase === 'steady');
   assert.equal(skipped.contextMismatch, 1);
+  const dropout = simulateFdc({ fault: 'dropout', seed: 4107 }).phaseMetrics.find(metric => metric.phase === 'steady');
+  assert.equal(dropout.missingByChannel[1], 6 / 20);
+  assert.equal(dropout.missingRate, 6 / 60);
   assert.throws(() => simulateFdc({ fault: 'unknown' }), RangeError);
   assert.throws(() => simulateFdc({ threshold: 5.1 }), RangeError);
 });
@@ -216,6 +234,30 @@ test('R2R nonzero-gain recurrence and actuator saturation match direct calculati
 
   const saturated = simulateR2r({ gain: 2, lag: 0, delay: 0, lambda: 1, noise: 0, disturbance: 2, limit: 0.2, seed: 1, runs: 30 });
   assert.equal(saturated.control[saturated.disturbanceAt], -0.2);
+  assert.ok(saturated.control.every(value => Math.abs(value) <= 0.2));
+  assert.ok(saturated.saturationFraction > 0);
+});
+
+test('R2R metrology delay is distinct from actuation delay and follows source-run recurrence', () => {
+  const args = { gain: 0.5, lag: 0, delay: 0, metrologyDelay: 1, lambda: 1, noise: 0, disturbance: 1, limit: 3, seed: 1, runs: 30 };
+  const result = simulateR2r(args);
+  assert.equal(result.metrologySourceRun[0], null);
+  assert.deepEqual(result.metrologySourceRun.slice(1), Array.from({ length: 29 }, (_, i) => i));
+  assert.equal(result.control[0], 0, 'no metrology result means hold the prior command');
+  assert.equal(result.control[result.disturbanceAt], 0, 'run k uses y[k−1], before current run result arrives');
+  assert.ok(result.control[result.disturbanceAt + 1] < 0);
+  const actuationOnly = simulateR2r({ ...args, metrologyDelay: 0, delay: 1 });
+  assert.equal(actuationOnly.metrologySourceRun[0], 0, 'zero metrology delay reports current run result');
+  assert.notDeepEqual(actuationOnly.control, result.control, 'actuation delay and measurement delay affect different recurrence stages');
+  const prior = simulateR2r({ ...args, metrologyDelay: 0 });
+  assert.deepEqual(prior.output, simulateR2r({ ...args, metrologyDelay: 0 }).output, 'm=0 stays deterministic');
+  assert.throws(() => simulateR2r({ metrologyDelay: 6 }), RangeError);
+});
+
+test('R2R zero gain and actuator saturation retain their expected constraints', () => {
+  const zeroGain = simulateR2r({ gain: 0, metrologyDelay: 3, noise: 0, seed: 1 });
+  assert.ok(zeroGain.control.every(value => value === 0));
+  const saturated = simulateR2r({ gain: 2, lag: 0, delay: 0, metrologyDelay: 0, lambda: 1, noise: 0, disturbance: 2, limit: 0.2, seed: 1, runs: 30 });
   assert.ok(saturated.control.every(value => Math.abs(value) <= 0.2));
   assert.ok(saturated.saturationFraction > 0);
 });

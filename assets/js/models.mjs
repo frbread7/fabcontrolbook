@@ -79,12 +79,20 @@ export function simulateSpc({ shift = 1, noise = 1, lambda = 0.2, horizon = 120,
   }
   const series = ['Shewhart', 'EWMA', 'CUSUM'].map(name => {
     const falseAlarms = baseline.filter(run => run.signalTimes[name] !== null).length;
+    const prechange = shifted.filter(run => run.signalTimes[name] !== null && run.signalTimes[name] < run.changeAt).length;
     const detections = shifted.filter(run => run.signalTimes[name] !== null && run.signalTimes[name] >= run.changeAt);
+    const noSignal = shifted.length - prechange - detections.length;
     const delays = detections.map(run => run.signalTimes[name] - run.changeAt + 1);
     return {
       name,
       falseAlarmRate: falseAlarms / trials,
       falseAlarmCI95: wilsonInterval(falseAlarms, trials),
+      shiftedPrechangeFirstAlarmCount: prechange,
+      shiftedPrechangeFirstAlarmRate: prechange / trials,
+      shiftedPostchangeFirstAlarmCount: detections.length,
+      shiftedPostchangeFirstAlarmRate: detections.length / trials,
+      shiftedNoSignalCount: noSignal,
+      shiftedNoSignalRate: noSignal / trials,
       detectionRate: detections.length / trials,
       detectionCI95: wilsonInterval(detections.length, trials),
       medianDelay: median(delays)
@@ -141,22 +149,24 @@ export function simulateFdc({ fault = 'normal', threshold = 2.5, seed = 1 } = {}
         slopeZ: slope / (referenceSd / Math.sqrt(sxx))
       };
     });
+    const missingByChannel = [0, 1, 2].map(channel => rowsInPhase.filter(row => row.values[channel] === null).length / rowsInPhase.length);
     const missingRate = rowsInPhase.flatMap(row => row.values).filter(value => value === null).length / (rowsInPhase.length * 3);
     const contextMismatch = rowsInPhase.filter(row => row.phase !== phase).length / rowsInPhase.length;
     const featureScores = channelFeatures.flatMap(features => [features.meanZ, features.dispersionZ, features.slopeZ]);
     const score = Math.max(...featureScores.map(Math.abs));
     const flagged = score > threshold || missingRate > 0 || contextMismatch > 0;
-    return { phase, score, flagged, missingRate, contextMismatch, channelFeatures };
+    return { phase, score, flagged, missingRate, missingByChannel, contextMismatch, channelFeatures };
   });
   return { rows, phaseMetrics, fault, threshold };
 }
 
-export function simulateR2r({ gain = 0.45, lag = 0.25, delay = 0, lambda = 0.35, noise = 0.08, disturbance = 1, limit = 1.5, seed = 1, runs = 70 } = {}) {
+export function simulateR2r({ gain = 0.45, lag = 0.25, delay = 0, metrologyDelay = 0, lambda = 0.35, noise = 0.08, disturbance = 1, limit = 1.5, seed = 1, runs = 70 } = {}) {
   finite('gain', gain, 0, 2); finite('lag', lag, 0, 0.9); integer('delay', delay, 0, 5);
+  integer('metrologyDelay', metrologyDelay, 0, 5);
   finite('lambda', lambda, 0.05, 1); finite('noise', noise, 0, 0.5); finite('disturbance', disturbance, 0, 2); finite('limit', limit, 0.2, 3);
   integer('seed', seed, 1, 0xffffffff); integer('runs', runs, 30, 200);
   const rng = makeRandom(seed);
-  const output = [], measured = [], control = [];
+  const output = [], measured = [], control = [], metrologySourceRun = [];
   let x = 0, ewma = 0, previousControl = 0;
   const disturbanceAt = Math.floor(runs * 0.3);
   for (let k = 0; k < runs; k += 1) {
@@ -165,15 +175,19 @@ export function simulateR2r({ gain = 0.45, lag = 0.25, delay = 0, lambda = 0.35,
     const d = k >= disturbanceAt ? disturbance : 0;
     x = lag * x + (1 - lag) * (d + applied);
     const observation = x + noise * rng.normal();
-    ewma = lambda * observation + (1 - lambda) * ewma;
-    const nextControl = clamp(previousControl - gain * ewma, -limit, limit);
-    output.push(x); measured.push(observation); control.push(nextControl);
-    previousControl = nextControl;
+    const sourceRun = k - metrologyDelay;
+    if (sourceRun >= 0) {
+      const result = sourceRun === k ? observation : measured[sourceRun];
+      ewma = lambda * result + (1 - lambda) * ewma;
+      previousControl = clamp(previousControl - gain * ewma, -limit, limit);
+    }
+    output.push(x); measured.push(observation); control.push(previousControl);
+    metrologySourceRun.push(sourceRun >= 0 ? sourceRun : null);
   }
   const post = output.slice(disturbanceAt);
   const rmse = Math.sqrt(post.reduce((sum, value) => sum + value * value, 0) / post.length);
   const saturationFraction = control.filter(value => Math.abs(value) >= limit - 1e-12).length / runs;
-  return { output, measured, control, disturbanceAt, rmse, peak: Math.max(...output.map(Math.abs)), saturationFraction };
+  return { output, measured, control, metrologySourceRun, disturbanceAt, rmse, peak: Math.max(...output.map(Math.abs)), saturationFraction };
 }
 
 function alarmTrial({ threshold, persistence, signals, vote, correlation, shift, seed, horizon, inject }) {
@@ -201,20 +215,27 @@ export function simulateAlarm({ threshold = 2.5, persistence = 2, signals = 4, v
   integer('horizon', horizon, 60, 200); integer('trials', trials, 50, 1000);
   const required = vote === 'majority' ? Math.floor(signals / 2) + 1 : vote === 'all' ? signals : Number(vote);
   integer('vote threshold', required, 1, signals);
-  const falseAlarms = [], detected = [];
+  const falseAlarms = [], injectedAlarmTimes = [];
   for (let i = 0; i < trials; i += 1) {
     falseAlarms.push(alarmTrial({ threshold, persistence, signals, vote: required, correlation, shift, seed: (seed + i * 3253) >>> 0, horizon, inject: false }));
-    detected.push(alarmTrial({ threshold, persistence, signals, vote: required, correlation, shift, seed: (seed + 0x35415927 + i * 7919) >>> 0, horizon, inject: true }));
+    injectedAlarmTimes.push(alarmTrial({ threshold, persistence, signals, vote: required, correlation, shift, seed: (seed + 0x35415927 + i * 7919) >>> 0, horizon, inject: true }));
   }
   const changeAt = Math.floor(horizon / 2);
-  const valid = detected.filter(time => time !== null && time >= changeAt);
+  const preEventCount = injectedAlarmTimes.filter(time => time !== null && time < changeAt).length;
+  const valid = injectedAlarmTimes.filter(time => time !== null && time >= changeAt);
+  const noAlarmCount = trials - preEventCount - valid.length;
   const delays = valid.map(time => time - changeAt + 1);
   const falseAlarmCount = falseAlarms.filter(time => time !== null).length;
   return {
     falseAlarmRate: falseAlarmCount / trials,
     falseAlarmCI95: wilsonInterval(falseAlarmCount, trials),
+    injectedPreEventAlarmCount: preEventCount,
+    injectedPreEventAlarmRate: preEventCount / trials,
+    postEventDetectedCount: valid.length,
     detectionRate: valid.length / trials,
     detectionCI95: wilsonInterval(valid.length, trials),
+    noFirstAlarmCount: noAlarmCount,
+    noFirstAlarmRate: noAlarmCount / trials,
     medianDelay: median(delays),
     meanDelay: delays.length ? delays.reduce((a, b) => a + b, 0) / delays.length : null,
     trials, vote: required, changeAt

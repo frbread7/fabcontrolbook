@@ -7,7 +7,6 @@ import html
 import json
 import re
 import shutil
-from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -173,7 +172,8 @@ def update_manifest(data, labs):
             "id": exp["id"], "chapterId": exp["chapterId"], "title": exp["title"],
             "url": PRODUCTION + "lab.html#" + exp["id"], "kind": exp["kind"]
         })
-    manifest["lastUpdated"] = date.today().isoformat()
+    # Keep the editorial publication date from the source manifest. A local
+    # build may regenerate indexes, but it must not silently restamp metadata.
     manifest["attribution"] = {
         "license": "CC BY 4.0 for original educational prose, diagrams, examples, and synthetic datasets; MIT for original code. See LICENSE.md and LICENSE-AND-ATTRIBUTION.md.",
         "repositoryUrl": manifest["repositoryUrl"],
