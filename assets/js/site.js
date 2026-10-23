@@ -33,6 +33,7 @@ const messages = {
 function value(id) {
   const element = document.getElementById(id);
   if (!element) throw new Error(`Missing control ${id}`);
+  if (!element.value.trim()) throw new Error(`Invalid value ${id}`);
   const number = Number(element.value);
   if (!Number.isFinite(number)) throw new Error(`Invalid value ${id}`);
   return number;
@@ -92,7 +93,9 @@ function draw(svg, series, { min = null, max = null, boundaries = [], horizontal
 function runSpc() {
   try {
     const result = simulateSpc({ shift: value('spc-shift'), noise: value('spc-noise'), lambda: value('spc-lambda'), horizon: value('spc-horizon'), seed: value('spc-seed'), mode: document.getElementById('spc-mode').value });
-    draw(document.getElementById('spc-chart'), [{ values: result.observations }], { min: -3.5, max: 3.5, horizontalLines: [-3, 3] });
+    const low = Math.min(-3, ...result.observations), high = Math.max(3, ...result.observations);
+    const padding = Math.max((high - low) * 0.08, 0.1);
+    draw(document.getElementById('spc-chart'), [{ values: result.observations }], { min: low - padding, max: high + padding, horizontalLines: [-3, 3] });
     const lines = result.series.map(s => `${s.name}: ${messages.falseAlarm} ${messages.percent(s.falseAlarmRate)} (${messages.ci95} ${messages.interval(s.falseAlarmCI95)}), ${messages.prechange} ${s.shiftedPrechangeFirstAlarmCount}/${result.trials} (${messages.percent(s.shiftedPrechangeFirstAlarmRate)}), ${messages.detection} ${s.shiftedPostchangeFirstAlarmCount}/${result.trials} (${messages.percent(s.detectionRate)}; ${messages.ci95} ${messages.interval(s.detectionCI95)}), ${messages.noSignal} ${s.shiftedNoSignalCount}/${result.trials} (${messages.percent(s.shiftedNoSignalRate)}), ${messages.medianDelay} ${messages.samples(s.medianDelay)}`);
     write('spc-results', `${messages.spcIntro}\n${lines.join('\n')}\n${messages.spcNote(result.changeAt + 1, result.trials)} ${messages.spcCaveat}`);
   } catch (err) { error('spc-results', err); }

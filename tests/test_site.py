@@ -112,6 +112,13 @@ class FabControlSiteTests(unittest.TestCase):
             self.assertTrue((SITE / file).is_file(), file)
         self.assertNotIn("CHOOSE-AND-RECORD", json.dumps(self.manifest))
 
+    def test_license_language_switch_stays_on_license_page(self):
+        for language, route, expected in (("en", "license.html", "ko/license.html"), ("ko", "ko/license.html", "../license.html")):
+            parsed = PageParser()
+            parsed.feed(build_site.shell(language, "License", "License", "", canonical_path=route, depth=1 if language == "ko" else 0))
+            parsed.close()
+            self.assertIn(("href", expected), parsed.links, route)
+
     def test_reference_records_include_corrected_primary_metadata(self):
         refs = {item["id"]: item for item in json.loads((ROOT / "content/references.json").read_text(encoding="utf-8"))["references"]}
         self.assertTrue(refs["nist-ewma"]["url"].endswith("pmc324.htm"))
@@ -119,6 +126,22 @@ class FabControlSiteTests(unittest.TestCase):
         self.assertIn("83, 107–125", refs["liu-r2r-survey"]["publisher"])
         chapters = (ROOT / "content/en/chapters/08-chamber-matching-tool-health.html").read_text(encoding="utf-8")
         self.assertIn("https://www.iso.org/standard/69418.html", chapters)
+
+    def test_chapter_and_lab_external_sources_are_in_bibliography(self):
+        refs = json.loads((ROOT / "content/references.json").read_text(encoding="utf-8"))["references"]
+        reference_urls = {item["url"] for item in refs}
+        cited_urls = set()
+        for language in ("en", "ko"):
+            pages = [ROOT / "content" / language / "lab.html"]
+            pages.extend((ROOT / "content" / language / "chapters").glob("*.html"))
+            for page in pages:
+                cited_urls.update(
+                    value
+                    for attribute, value in parse_page(page).links
+                    if attribute == "href" and value.startswith(("http://", "https://"))
+                )
+        self.assertTrue(cited_urls)
+        self.assertEqual(cited_urls - reference_urls, set())
 
     def test_manifest_refresh_preserves_editorial_date(self):
         data, _, labs = build_site.load_data()

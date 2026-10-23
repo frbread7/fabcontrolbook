@@ -77,6 +77,30 @@ test('four bilingual laboratories execute and announce results', async ({ page }
   expect(pageErrors).toEqual([]);
 });
 
+test('SPC chart expands for large valid observations and blank inputs are rejected', async ({ page }) => {
+  await page.goto('lab.html');
+  await page.locator('#spc-shift').fill('3');
+  await page.locator('#spc-noise').fill('2');
+  await page.locator('#run-spc').click();
+  await expect(page.locator('#spc-results')).not.toContainText('Check the input');
+  const chartGeometry = await page.locator('#spc-chart').evaluate(svg => {
+    const points = svg.querySelector('polyline.signal').getAttribute('points').split(/\s+/).map(point => Number(point.split(',')[1]));
+    const limits = Array.from(svg.querySelectorAll('line.limit')).map(line => Number(line.getAttribute('y1')));
+    return { pointMin: Math.min(...points), pointMax: Math.max(...points), limitMin: Math.min(...limits), limitMax: Math.max(...limits) };
+  });
+  expect(chartGeometry.pointMin).toBeGreaterThan(24);
+  expect(chartGeometry.pointMax).toBeLessThan(225);
+  expect(chartGeometry.limitMin).toBeGreaterThan(24);
+  expect(chartGeometry.limitMax).toBeLessThan(225);
+
+  await page.locator('#spc-shift').fill('');
+  await page.locator('#run-spc').click();
+  await expect(page.locator('#spc-results')).toContainText('Check the input ranges and try again.');
+  await page.locator('#spc-shift').fill('0');
+  await page.locator('#run-spc').click();
+  await expect(page.locator('#spc-results')).not.toContainText('Check the input ranges and try again.');
+});
+
 test('responsive pages fit their viewport and remain keyboard navigable', async ({ page }) => {
   for (const route of ['index.html', 'ko/index.html', 'lab.html', 'ko/lab.html']) {
     await page.goto(route);

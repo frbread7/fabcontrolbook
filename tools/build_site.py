@@ -134,6 +134,7 @@ def shell(lang, title, description, body, current_id=None, canonical_path="", de
         else: other_href = "../../chapters/" + chapter["file"]
     elif canonical_path.endswith("lab.html"): other_href = ("ko/lab.html" if lang == "en" else "../lab.html")
     elif canonical_path.endswith("references.html"): other_href = ("ko/references.html" if lang == "en" else "../references.html")
+    elif canonical_path.endswith("license.html"): other_href = ("ko/license.html" if lang == "en" else "../license.html")
     else: other_href = ("ko/index.html" if lang == "en" else "../index.html")
     home_href = "../index.html" if chapter_page else "index.html"
     lab_href = "../lab.html" if chapter_page else "lab.html"

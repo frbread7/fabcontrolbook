@@ -1,12 +1,12 @@
 # Scientific reconstruction candidate — 2026-10-21
 
-This is a change inventory for the local reconstruction candidate relative to the audited baseline in `SCIENTIFIC_RECONSTRUCTION_AUDIT_2026-10-19.md`. It is not a release approval. The source audit was read-only; chapter, lab, model, and test changes are local candidate work. The baseline audit itself ran no test suite. Historical release metadata and the published manifest date remain unchanged. Candidate verification below is local and synthetic; exact committed-HEAD evidence is recorded separately after the candidate commit.
+This is a change inventory for the reconstruction stage committed as `902ad7a`, relative to the audited baseline in `SCIENTIFIC_RECONSTRUCTION_AUDIT_2026-10-19.md`. It is not a release approval. The source audit was read-only; chapter, lab, model, and test changes at that stage are candidate work. The baseline audit itself ran no test suite. The statements below describe that frozen science/reconstruction stage, not later release metadata: on 2026-10-23, the source metadata and editorial date were separately prepared for v1.1.0 candidate validation. Candidate verification below is local and synthetic; exact committed-HEAD evidence is recorded separately in the isolated quality matrix.
 
 ## Stage B: paired chapter dispositions
 
-Each row describes the paired English/Korean chapter disposition. “Updated” identifies content present in the current candidate worktree; it is not a bilingual quality sign-off.
+Each row describes the paired English/Korean chapter disposition at reconstruction stage `902ad7a`. “Updated” identifies content in that dated candidate snapshot; it is not a bilingual quality sign-off.
 
-| Chapter pair | Stage B disposition and present candidate change |
+| Chapter pair | Stage B disposition and change in the `902ad7a` snapshot |
 |---|---|
 | 01 — Control architecture | Updated: worked a five-wafer X-bar signal with explicit known-σ assumptions, 3σ limits, response decision, and original decision-handoff figure; separates signal, product disposition, and authorized control. |
 | 02 — Sensor lineage | Updated: populated a synthetic run/wafer/operation join with event and ingestion times, immutable IDs, and a stale prior-run row that is rejected without deleting lineage. |
@@ -32,7 +32,7 @@ Each row describes the paired English/Korean chapter disposition. “Updated” 
 | Run-to-run APC | Metrology delay `m` is distinct from actuation delay `d`; source run is exposed and unavailable results hold state/action. The model note gives the requested exact plant/measurement equations, clipping, ranges, and only the unsaturated memoryless `0<KcKp<2` criterion; it makes no general stability claim. |
 | Alarm strategy | Pre-event alarm, post-event first detection, and no-first-alarm counts are separately exposed with all injected trials as denominator; cross-channel correlation is distinguished from temporal dependence. |
 
-Candidate model/test edits are present in `assets/js/models.mjs`, `assets/js/site.js`, `tests/models.test.mjs`, and `tests/e2e/book.spec.js`. The build now preserves the editorial `lastUpdated` field in `library-manifest.json`; a Python regression test checks that behavior with a separate fixture. The baseline audit's SPC and probe figures remain dated baseline evidence, not process-validation evidence for this candidate.
+At reconstruction stage `902ad7a`, model/test edits were present in `assets/js/models.mjs`, `assets/js/site.js`, `tests/models.test.mjs`, and `tests/e2e/book.spec.js`. The build preserved the editorial `lastUpdated` field in `library-manifest.json`; a Python regression test checked that behavior with a separate fixture. The baseline audit's SPC and probe figures remain dated baseline evidence, not process-validation evidence for this candidate.
 
 ## Local precommit checks and independent review
 
@@ -46,4 +46,4 @@ Independent Sol High science review inspected four lab models and quantitative e
 - **P3 — visual scope:** the new original Chapter 01 decision figure and wide tables passed focused viewport, touch, and keyboard checks. A broader illustration program and localization of the historical English-only landing SVG remain optional future editorial work.
 - **P3 — translation evidence:** independent model-based scientific semantic review covered all 14 pairs and four labs; it does not establish human or native-speaker certification.
 
-No public action, publication, release-metadata update, or historical-document rewrite is part of this candidate. A local commit and its exact-HEAD verification are required before recommending any publication action. The central portal quality matrix will record that final commit, test evidence, unresolved limits, and comparison with the other books.
+At the frozen 2026-10-21 reconstruction stage, no public action or publication was part of this candidate and release metadata had not yet been updated. The separate 2026-10-23 metadata preparation does not establish publication or deployment. The central portal quality matrix records the final source evidence, unresolved limits, and comparison with the other books.

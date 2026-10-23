@@ -4,7 +4,7 @@
 
 FabControlBook is a bilingual (English/Korean) professional textbook on how semiconductor manufacturing teams design, evaluate, troubleshoot, and govern monitoring and control systems. Its focus is the engineering chain joining SPC, FDC, APC/R2R, sensor data, manufacturing context, alarms, and reviewed operational response.
 
-The published v1.0.1 revision corrected documentation and release records. This separate, local scientific reconstruction candidate updates all 14 bilingual chapter pairs and four interactive labs, including the run-to-run control timing model. It has not been published or assigned a new release version; see [`docs/RECONSTRUCTION_CANDIDATE.md`](docs/RECONSTRUCTION_CANDIDATE.md) for its scope and evidence limits.
+The published v1.0.1 revision corrected documentation and release records. During candidate preparation on 2026-10-23, release metadata was aligned to v1.1.0 for the scientific reconstruction, which updates all 14 bilingual chapter pairs and four interactive labs, including the run-to-run control timing model. That preparation does not establish release or deployment completion; My Library remains the authority for publication status and the deployed version. See [`docs/RECONSTRUCTION_CANDIDATE.md`](docs/RECONSTRUCTION_CANDIDATE.md) and [`docs/RELEASE_NOTES_v1.1.0.md`](docs/RELEASE_NOTES_v1.1.0.md) for scope and evidence limits.
 
 The book contains 14 authored chapters and four interactive synthetic-data labs. The models are pedagogical, not calibrated to a production fab. Their mathematical behavior is checked analytically for selected cases and by deterministic automated tests; no factory or silicon validation is claimed.
 

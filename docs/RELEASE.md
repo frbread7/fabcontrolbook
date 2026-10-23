@@ -13,10 +13,14 @@ FabControlBook uses semantic versions and independent GitHub Pages deployments. 
 7. Create the GitHub release at the deployed revision. The central My Library record is promoted only after its release, source SHA, CI/deployment, chapter, experiment, review, and provenance evidence passes validation.
 8. Regenerate and validate portal indexes, deploy My Library, then repeat the portal production journey checks. Record the final status in the portal manifest; never promote an incomplete book.
 
+## Current candidate
+
+The source metadata was aligned for **v1.1.0 candidate preparation** for the scientific reconstruction documented in `docs/RECONSTRUCTION_CANDIDATE.md`. This records the candidate-preparation state, not a claim that the release or deployment gates passed. The repository-local manifest remains `in-progress`; its `lastUpdated` field is the editorial content date and does not indicate publication. My Library remains authoritative for publication status and the current deployed version. See [`RELEASE_NOTES_v1.1.0.md`](RELEASE_NOTES_v1.1.0.md) for the candidate scope and status at preparation.
+
 ## Release history and source of truth
 
 - **v1.0.0** is the technical-content release at source revision `2dfb22bf86759c0e273ec95e4d394f7e3255a366`. The original v1.0.0 tag and source SHA are preserved; the GitHub Actions run and Pages deployment are recorded in My Library.
-- **v1.0.1** designates a documentation and release-record correction. It changes no chapter, model, or simulator behavior. The package and repository manifest are aligned for this patch.
+- **v1.0.1** designated a documentation and release-record correction. It changed no chapter, model, or simulator behavior; the package and repository manifest were aligned for that patch.
 - My Library is the canonical source for publication status, current release URL, exact deployed SHA, experiment verification, CI/deployment run, and production checks: [FabControlBook manifest](https://github.com/frbread7/books/blob/main/catalog/books/fabcontrolbook.json).
 - The book repository-local manifest deliberately remains `in-progress`. My Library's central catalog alone determines publication status and records release/deployment evidence after its publication gate passes.
 
